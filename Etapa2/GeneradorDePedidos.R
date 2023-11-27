@@ -11,6 +11,7 @@
 #los tres clientes en determinado mes, posteriormente se toma como media la demanda
 #del mes anterior. La desviación estándar no es grande ya que los productos son de
 #consumo usual, por lo que no es un riesgo considerable para la empresa. 
+cantidad_de_años <- 15
 deuda <- 40000
 ganancia <- 0
 presupuesto <- 10000000 + ganancia
@@ -69,9 +70,9 @@ reporteAnualGarbanzos <- matrix(nrow = 12, ncol = 3)
 reporteAnualTomate <- matrix(nrow = 12, ncol = 3)
 reporteAnualMaizDulce <- matrix(nrow = 12, ncol = 3)
 reporteAnualPalmito <- matrix(nrow = 12, ncol = 3)
-for (año in 1:15){
-  print("Año ")
-  print(año)
+for (año in 1:cantidad_de_años){
+  cat("------------------------------------------\n")
+  cat("Año: ",año,"\n")
   for (mes in 1:12){
     mediaTomate <-mean(pedidosTomate)
     mediaMaizDulce <-mean(pedidosMaizDulce)
@@ -144,8 +145,7 @@ for (año in 1:15){
                                ,reporteAnualTomate[mes,])
     
     cantidadDeLatas <- cantidadDeLatas - latasTotalesPedidas
-    print("Latas pedidas durante el mes")
-    print(latasTotalesPedidas)
+    cat("Latas pedidas durante el mes[",mes,"]:", latasTotalesPedidas, "\n")
     if (latasTotalesPedidas > cantidadDeChefs*tasaDeProduccion){
       #considerar contratar o despedir chefs
     }
