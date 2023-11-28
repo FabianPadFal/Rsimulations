@@ -2,31 +2,30 @@
 #Fecha de entrega: 19/11/2023
 #Equipo: Azúcar Sintáctico
 
-#En este proyecto de simulación se emplea una distribución normal para la
+#En este proyecto de simulación se emplea una distribución de Poisson para la
 #generación de números aleatorios que serán utilizados para simular la demanda
 #de productos para cada uno de los tres clientes de la empresa. Esto debido a
-#que la distribución se aproxima considerablemente a la realidad ya que la empresa
-#tiene una producción estable con pedidos estables. Para ello se hace uso de la 
-#función rnorm de R, tomándose como media inicial el promedio de pedidos para
-#los tres clientes en determinado mes, posteriormente se toma como media la demanda
-#del mes anterior. La desviación estándar no es grande ya que los productos son de
-#consumo usual, por lo que no es un riesgo considerable para la empresa. 
+#que la distribución de Poisson tiene un comportamiento discreto. Para ello se hace uso de la 
+#función rpois de R, tomándose como lambda el promedio de pedidos para
+#los tres clientes en determinado mes. 
+
 cantidad_de_años <- 15
-deuda <- 40000
+#Anualmente se realiza un pago del 5% 
+deuda <- 15000000
 ganancia <- 0
-presupuesto <- 10000000 + ganancia
+presupuesto <- 3500000 + ganancia
 
 cantidadDeChefs <- 2
-salarioDeChef <- 280000 * 12
+salarioDeChef <- 280000
 tasaDeProduccion <- 600
 
-cantidadDeConductores <- 2
-salarioDeConductor <- 280000 * 12
+cantidadDeConductores <- 1
+salarioDeConductor <- 280000
 
 cantidadDeLatas <- 1000
 precioPorLata <- 100
 
-gastosEnGasolina <- 350000
+gastosEnGasolina <- 35000
 
 registroDePedidos <- c()
 registroDeLatasTomate <- 0
@@ -39,10 +38,11 @@ gastosLataPalmito <- 600
 gastosLataGarbanzos <- 350
 gastosLataMaizDulce <- 200
 
-precioLataTomate <- 1300
-precioLataPalmito <- 1300
-precioLataGarbanzos <- 1300
-precioLataMaizDulce <- 1300
+#obtener precio real de cada producto
+precioLataTomate <- 1020
+precioLataPalmito <- 1320
+precioLataGarbanzos <- 1180
+precioLataMaizDulce <- 700
 
 gananciaLataTomate <- precioLataTomate - gastosLataTomate
 gananciaLataPalmito <- precioLataPalmito - gastosLataPalmito
@@ -54,6 +54,7 @@ gananciaAnualTomate <- 0
 gananciaAnualPalmito <- 0
 gananciaAnualMaizDulce <- 0
 gananciaAnualTotal <- c()
+
 #pedidos por mes (aumentar la cantidad para obtener una mayor ganancia)
 pedidosTomate <- c(45,50,35)
 pedidosMaizDulce <- c(120,140,160)
@@ -65,7 +66,7 @@ mediaMaizDulce <-mean(pedidosMaizDulce)
 mediaGarbanzos <-mean(pedidosGarbanzos)
 mediaPalmito <-mean(pedidosPalmito)
 
-#simulación de un año utilizando una distribución de Poisson
+#simulación de 15 año utilizando una distribución de Poisson
 reporteAnualGarbanzos <- matrix(nrow = 12, ncol = 3)
 reporteAnualTomate <- matrix(nrow = 12, ncol = 3)
 reporteAnualMaizDulce <- matrix(nrow = 12, ncol = 3)
@@ -88,26 +89,25 @@ for (año in 1:cantidad_de_años){
       mediaTomate <- mediaTomate - (mediaTomate*20/100)
       mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*20/100)
       mediaPalmito <- mediaPalmito - (mediaPalmito*20/100)
-    } else {
-      if (mes == 3){
-        #Semana Santa: Aumenta la demanda del palmito un 30% y
-        #baja la demanda de garbanzos un 45%
-        mediaPalmito <- mediaPalmito + (mediaPalmito*45/100)
-        mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*30/100)
-      } else if (mes == 7){
-        #Vacaciones de medio año: la demanda de todos los productos pueden bajar
-        #entre un 10% o 20%
-        mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*10/100)
-        mediaTomate <- mediaTomate - (mediaTomate*10/100)
-        mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*10/100)
-        mediaPalmito <- mediaPalmito - (mediaPalmito*10/100)
-      } else if (mes == 12){
-        #Navidad y fin de año: Aumenta la demanda de garbanzos un 50% y
-        #baja la del tomate un 25%
-        mediaGarbanzos <- mediaGarbanzos + (mediaGarbanzos*50/100)
-        mediaTomate <- mediaTomate - (mediaTomate*25/100)
-      }
+    } else if (mes == 3){
+      #Semana Santa: Aumenta la demanda del palmito un 30% y
+      #baja la demanda de garbanzos un 45%
+      mediaPalmito <- mediaPalmito + (mediaPalmito*45/100)
+      mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*30/100)
+    } else if (mes == 7){
+      #Vacaciones de medio año: la demanda de todos los productos pueden bajar
+      #entre un 10% o 20%
+      mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*10/100)
+      mediaTomate <- mediaTomate - (mediaTomate*10/100)
+      mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*10/100)
+      mediaPalmito <- mediaPalmito - (mediaPalmito*10/100)
+    } else if (mes == 12){
+      #Navidad y fin de año: Aumenta la demanda de garbanzos un 50% y
+      #baja la del tomate un 25%
+      mediaGarbanzos <- mediaGarbanzos + (mediaGarbanzos*50/100)
+      mediaTomate <- mediaTomate - (mediaTomate*25/100)
     }
+    
     #Tiempo atmosférico: en Costa Rica llueve en promedio 163 días del año
     #Al mes son 163/12, la tasa de lluvia al mes es de 12/163
     tasaDeDiasLluviosos <- 12/163
@@ -116,7 +116,6 @@ for (año in 1:cantidad_de_años){
       #si es abril, mayo, septiembre u octubre aumenta la tasa de días 
       #lluviosos un 60%:
       tasaDeDiasLluviosos <- tasaDeDiasLluviosos + (tasaDeDiasLluviosos*60/100)
-      registroAtmosféricoMensual <- rep(0,30)
       for(dia in 1:30){
         registroAtmosféricoMensual[dia] <- rpois(1,tasaDeDiasLluviosos)
       }
@@ -171,8 +170,9 @@ for (año in 1:cantidad_de_años){
   gananciaAnualMaizDulce <- sum(reporteAnualMaizDulce)*gananciaLataMaizDulce
   gananciaAnualTotal[año] <- gananciaAnualGarbanzos + gananciaAnualTomate + gananciaAnualPalmito + gananciaAnualMaizDulce
   
-  gananciaAnualTotal[año] <- gananciaAnualTotal[año] - salarioDeChef*cantidadDeChefs - salarioDeConductor*cantidadDeConductores - gastosEnGasolina - (deuda - deuda*5/100)
+  gananciaAnualTotal[año] <- gananciaAnualTotal[año] - salarioDeChef*cantidadDeChefs*12 - salarioDeConductor*cantidadDeConductores*12 - cantidadDeLatas*precioPorLata*12 - gastosEnGasolina*12 - (deuda*5/100)
   #considerar mantenimiento de los vehículos, pago de aguinaldos, aumento de pedidos...
+  cat("Ganancias por año", "\n", gananciaAnualTotal)
 }
 
 "
