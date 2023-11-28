@@ -10,6 +10,8 @@
 #los tres clientes en determinado mes. 
 
 cantidad_de_años <- 15
+cantidad_de_iteraciones <- 10000
+
 #Anualmente se realiza un pago del 5% 
 deuda <- 15000000
 ganancia <- 0
@@ -71,109 +73,108 @@ reporteAnualGarbanzos <- matrix(nrow = 12, ncol = 3)
 reporteAnualTomate <- matrix(nrow = 12, ncol = 3)
 reporteAnualMaizDulce <- matrix(nrow = 12, ncol = 3)
 reporteAnualPalmito <- matrix(nrow = 12, ncol = 3)
-for (año in 1:cantidad_de_años){
-  cat("------------------------------------------\n")
-  cat("Año: ",año,"\n")
-  for (mes in 1:12){
-    mediaTomate <-mean(pedidosTomate)
-    mediaMaizDulce <-mean(pedidosMaizDulce)
-    mediaGarbanzos <-mean(pedidosGarbanzos)
-    mediaPalmito <-mean(pedidosPalmito)
-    #Generar la cantidad de productos vendidos en un mes para los 3 clientes
-    #Considerar los eventos como fechas, tiempo y ventas del mes anterior 
-    #Fechas
-    if (mes == 1){
-      #Cuesta de enero: la demanda de todos los productos
-      #pueden bajar entre un 20% o 40%
-      mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*20/100)
-      mediaTomate <- mediaTomate - (mediaTomate*20/100)
-      mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*20/100)
-      mediaPalmito <- mediaPalmito - (mediaPalmito*20/100)
-    } else if (mes == 3){
-      #Semana Santa: Aumenta la demanda del palmito un 30% y
-      #baja la demanda de garbanzos un 45%
-      mediaPalmito <- mediaPalmito + (mediaPalmito*45/100)
-      mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*30/100)
-    } else if (mes == 7){
-      #Vacaciones de medio año: la demanda de todos los productos pueden bajar
-      #entre un 10% o 20%
-      mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*10/100)
-      mediaTomate <- mediaTomate - (mediaTomate*10/100)
-      mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*10/100)
-      mediaPalmito <- mediaPalmito - (mediaPalmito*10/100)
-    } else if (mes == 12){
-      #Navidad y fin de año: Aumenta la demanda de garbanzos un 50% y
-      #baja la del tomate un 25%
-      mediaGarbanzos <- mediaGarbanzos + (mediaGarbanzos*50/100)
-      mediaTomate <- mediaTomate - (mediaTomate*25/100)
-    }
-    
-    #Tiempo atmosférico: en Costa Rica llueve en promedio 163 días del año
-    #Al mes son 163/12, la tasa de lluvia al mes es de 12/163
-    tasaDeDiasLluviosos <- 12/163
-    registroAtmosféricoMensual <- rep(0,30)
-    if (mes == 4 || mes == 5 || mes == 9 || mes == 10){
-      #si es abril, mayo, septiembre u octubre aumenta la tasa de días 
-      #lluviosos un 60%:
-      tasaDeDiasLluviosos <- tasaDeDiasLluviosos + (tasaDeDiasLluviosos*60/100)
-      for(dia in 1:30){
-        registroAtmosféricoMensual[dia] <- rpois(1,tasaDeDiasLluviosos)
+# Aqui se van a ir guardando los resultados de las ganancias de cada año
+# para luego sacar su promedio
+ganancias <- c()
+
+for (iteracion in 1:cantidad_de_iteraciones) {
+  for (año in 1:cantidad_de_años){
+    for (mes in 1:12){
+      mediaTomate <-mean(pedidosTomate)
+      mediaMaizDulce <-mean(pedidosMaizDulce)
+      mediaGarbanzos <-mean(pedidosGarbanzos)
+      mediaPalmito <-mean(pedidosPalmito)
+      #Generar la cantidad de productos vendidos en un mes para los 3 clientes
+      #Considerar los eventos como fechas, tiempo y ventas del mes anterior 
+      #Fechas
+      if (mes == 1){
+        #Cuesta de enero: la demanda de todos los productos
+        #pueden bajar entre un 20% o 40%
+        mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*20/100)
+        mediaTomate <- mediaTomate - (mediaTomate*20/100)
+        mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*20/100)
+        mediaPalmito <- mediaPalmito - (mediaPalmito*20/100)
+      } else if (mes == 3){
+        #Semana Santa: Aumenta la demanda del palmito un 30% y
+        #baja la demanda de garbanzos un 45%
+        mediaPalmito <- mediaPalmito + (mediaPalmito*45/100)
+        mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*30/100)
+      } else if (mes == 7){
+        #Vacaciones de medio año: la demanda de todos los productos pueden bajar
+        #entre un 10% o 20%
+        mediaGarbanzos <- mediaGarbanzos - (mediaGarbanzos*10/100)
+        mediaTomate <- mediaTomate - (mediaTomate*10/100)
+        mediaMaizDulce <- mediaMaizDulce - (mediaMaizDulce*10/100)
+        mediaPalmito <- mediaPalmito - (mediaPalmito*10/100)
+      } else if (mes == 12){
+        #Navidad y fin de año: Aumenta la demanda de garbanzos un 50% y
+        #baja la del tomate un 25%
+        mediaGarbanzos <- mediaGarbanzos + (mediaGarbanzos*50/100)
+        mediaTomate <- mediaTomate - (mediaTomate*25/100)
       }
-    } else {
-      for(dia in 1:30){
-        registroAtmosféricoMensual[dia] <- rpois(1,tasaDeDiasLluviosos)
+      
+      #Tiempo atmosférico: en Costa Rica llueve en promedio 163 días del año
+      #Al mes son 163/12, la tasa de lluvia al mes es de 12/163
+      tasaDeDiasLluviosos <- 12/163
+      registroAtmosféricoMensual <- rep(0,30)
+      if (mes == 4 || mes == 5 || mes == 9 || mes == 10){
+        #si es abril, mayo, septiembre u octubre aumenta la tasa de días 
+        #lluviosos un 60%:
+        tasaDeDiasLluviosos <- tasaDeDiasLluviosos + (tasaDeDiasLluviosos*60/100)
+        for(dia in 1:30){
+          registroAtmosféricoMensual[dia] <- rpois(1,tasaDeDiasLluviosos)
+        }
+      } else {
+        for(dia in 1:30){
+          registroAtmosféricoMensual[dia] <- rpois(1,tasaDeDiasLluviosos)
+        }
       }
+      #se cuentan cuántos días lluvió durante el mes, si es mayor que 4 se
+      #considera un aumento de demanda significativa
+      if (sum(registroAtmosféricoMensual) > 6){
+        #Días lluviosos: Aumenta la demanda de sopa de tomate un 50%
+        #y de garbanzos un 15%
+        mediaTomate <- mediaTomate + (mediaTomate*50/100)
+        mediaGarbanzos <- mediaGarbanzos + (mediaGarbanzos*15/100)
+      }
+      
+      reporteAnualGarbanzos [mes, ] <- rpois(3,mediaGarbanzos)
+      reporteAnualTomate [mes, ] <- rpois(3,mediaTomate)
+      reporteAnualMaizDulce [mes, ] <- rpois(3,mediaMaizDulce)
+      reporteAnualPalmito [mes, ] <- rpois(3,mediaPalmito)
+      
+      latasTotalesPedidas <- sum(reporteAnualGarbanzos[mes,]
+                                 ,reporteAnualMaizDulce[mes,]
+                                 ,reporteAnualPalmito[mes,]
+                                 ,reporteAnualTomate[mes,])
+      
+      cantidadDeLatas <- cantidadDeLatas - latasTotalesPedidas
+      if (latasTotalesPedidas > cantidadDeChefs*tasaDeProduccion){
+        #considerar contratar o despedir chefs
+      }
+      
+      #pagar salarios
+      
+      #Reabastecer inventario (compra de latas, ingredientes y gasolina)
+      cantidadDeLatas <- cantidadDeLatas + latasTotalesPedidas
+      
     }
-    #se cuentan cuántos días lluvió durante el mes, si es mayor que 4 se
-    #considera un aumento de demanda significativa
-    if (sum(registroAtmosféricoMensual) > 6){
-      #Días lluviosos: Aumenta la demanda de sopa de tomate un 50%
-      #y de garbanzos un 15%
-      mediaTomate <- mediaTomate + (mediaTomate*50/100)
-      mediaGarbanzos <- mediaGarbanzos + (mediaGarbanzos*15/100)
-    }
     
-    reporteAnualGarbanzos [mes, ] <- rpois(3,mediaGarbanzos)
-    reporteAnualTomate [mes, ] <- rpois(3,mediaTomate)
-    reporteAnualMaizDulce [mes, ] <- rpois(3,mediaMaizDulce)
-    reporteAnualPalmito [mes, ] <- rpois(3,mediaPalmito)
+    gananciaAnualGarbanzos <- sum(reporteAnualGarbanzos)*gananciaLataGarbanzos
+    gananciaAnualTomate <- sum(reporteAnualTomate)*gananciaLataTomate
+    gananciaAnualPalmito <- sum(reporteAnualPalmito)*gananciaLataPalmito
+    gananciaAnualMaizDulce <- sum(reporteAnualMaizDulce)*gananciaLataMaizDulce
+    gananciaAnualTotal[año] <- gananciaAnualGarbanzos + gananciaAnualTomate + gananciaAnualPalmito + gananciaAnualMaizDulce
     
-    latasTotalesPedidas <- sum(reporteAnualGarbanzos[mes,]
-                               ,reporteAnualMaizDulce[mes,]
-                               ,reporteAnualPalmito[mes,]
-                               ,reporteAnualTomate[mes,])
-    
-    cantidadDeLatas <- cantidadDeLatas - latasTotalesPedidas
-    cat("Latas pedidas durante el mes[",mes,"]:", latasTotalesPedidas, "\n")
-    if (latasTotalesPedidas > cantidadDeChefs*tasaDeProduccion){
-      #considerar contratar o despedir chefs
-    }
-    
-    #pagar salarios
-    
-    #Reabastecer inventario (compra de latas, ingredientes y gasolina)
-    cantidadDeLatas <- cantidadDeLatas + latasTotalesPedidas
-    
+    gananciaAnualTotal[año] <- gananciaAnualTotal[año] - salarioDeChef*cantidadDeChefs*12 - salarioDeConductor*cantidadDeConductores*12 - cantidadDeLatas*precioPorLata*12 - gastosEnGasolina*12 - (deuda*5/100)
+    #considerar mantenimiento de los vehículos, pago de aguinaldos, aumento de pedidos...
+    ganancias <- append(ganancias, gananciaAnualTotal[año])
   }
-  print("Reporte Garbanzos")
-  print(reporteAnualGarbanzos)
-  print("Reporte Tomate")
-  print(reporteAnualTomate)
-  print("Reporte MaizDulce")
-  print(reporteAnualMaizDulce)
-  print("Reporte Palmito")
-  print(reporteAnualPalmito)
-  
-  gananciaAnualGarbanzos <- sum(reporteAnualGarbanzos)*gananciaLataGarbanzos
-  gananciaAnualTomate <- sum(reporteAnualTomate)*gananciaLataTomate
-  gananciaAnualPalmito <- sum(reporteAnualPalmito)*gananciaLataPalmito
-  gananciaAnualMaizDulce <- sum(reporteAnualMaizDulce)*gananciaLataMaizDulce
-  gananciaAnualTotal[año] <- gananciaAnualGarbanzos + gananciaAnualTomate + gananciaAnualPalmito + gananciaAnualMaizDulce
-  
-  gananciaAnualTotal[año] <- gananciaAnualTotal[año] - salarioDeChef*cantidadDeChefs*12 - salarioDeConductor*cantidadDeConductores*12 - cantidadDeLatas*precioPorLata*12 - gastosEnGasolina*12 - (deuda*5/100)
-  #considerar mantenimiento de los vehículos, pago de aguinaldos, aumento de pedidos...
-  cat("Ganancias por año", "\n", gananciaAnualTotal)
 }
+
+promedio_total_ganancias = mean(ganancias)
+
+cat("Promedio de ganancias con", cantidad_de_iteraciones, "iteraciones:", promedio_total_ganancias)
 
 "
 Eventos: tienen un peso en la producción y demanda de ciertos productos a lo largo
