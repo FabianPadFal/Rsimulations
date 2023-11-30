@@ -10,7 +10,7 @@
 #los tres clientes en determinado mes. 
 
 cantidad_de_años <- 15
-cantidad_de_iteraciones <- 10000
+cantidad_de_iteraciones <- 100
 
 #Anualmente se realiza un pago del 5% 
 deuda <- 15000000
@@ -28,12 +28,6 @@ cantidadDeLatas <- 1000
 precioPorLata <- 100
 
 gastosEnGasolina <- 35000
-
-registroDePedidos <- c()
-registroDeLatasTomate <- 0
-registroDeLatasGarbanzos <- 0
-registroDeLatasMaizDulce <- 0
-registroDeLatasPalmito <- 0
 
 gastosLataTomate <- 500
 gastosLataPalmito <- 600
@@ -73,9 +67,12 @@ reporteAnualGarbanzos <- matrix(nrow = 12, ncol = 3)
 reporteAnualTomate <- matrix(nrow = 12, ncol = 3)
 reporteAnualMaizDulce <- matrix(nrow = 12, ncol = 3)
 reporteAnualPalmito <- matrix(nrow = 12, ncol = 3)
+latasTotalesPedidas <- matrix(nrow = cantidad_de_años, ncol = cantidad_de_iteraciones)
+promedio_de_latas <- rep(0,cantidad_de_iteraciones)
 # Aqui se van a ir guardando los resultados de las ganancias de cada año
 # para luego sacar su promedio
 ganancias <- c()
+gananciasTotales <- matrix(nrow = cantidad_de_años, ncol = cantidad_de_iteraciones)
 
 for (iteracion in 1:cantidad_de_iteraciones) {
   for (año in 1:cantidad_de_años){
@@ -143,21 +140,6 @@ for (iteracion in 1:cantidad_de_iteraciones) {
       reporteAnualMaizDulce [mes, ] <- rpois(3,mediaMaizDulce)
       reporteAnualPalmito [mes, ] <- rpois(3,mediaPalmito)
       
-      latasTotalesPedidas <- sum(reporteAnualGarbanzos[mes,]
-                                 ,reporteAnualMaizDulce[mes,]
-                                 ,reporteAnualPalmito[mes,]
-                                 ,reporteAnualTomate[mes,])
-      
-      cantidadDeLatas <- cantidadDeLatas - latasTotalesPedidas
-      if (latasTotalesPedidas > cantidadDeChefs*tasaDeProduccion){
-        #considerar contratar o despedir chefs
-      }
-      
-      #pagar salarios
-      
-      #Reabastecer inventario (compra de latas, ingredientes y gasolina)
-      cantidadDeLatas <- cantidadDeLatas + latasTotalesPedidas
-      
     }
     
     gananciaAnualGarbanzos <- sum(reporteAnualGarbanzos)*gananciaLataGarbanzos
@@ -165,16 +147,35 @@ for (iteracion in 1:cantidad_de_iteraciones) {
     gananciaAnualPalmito <- sum(reporteAnualPalmito)*gananciaLataPalmito
     gananciaAnualMaizDulce <- sum(reporteAnualMaizDulce)*gananciaLataMaizDulce
     gananciaAnualTotal[año] <- gananciaAnualGarbanzos + gananciaAnualTomate + gananciaAnualPalmito + gananciaAnualMaizDulce
-    
     gananciaAnualTotal[año] <- gananciaAnualTotal[año] - salarioDeChef*cantidadDeChefs*12 - salarioDeConductor*cantidadDeConductores*12 - cantidadDeLatas*precioPorLata*12 - gastosEnGasolina*12 - (deuda*5/100)
+    
+    latasTotalesPedidas[año,iteracion] <- sum(reporteAnualGarbanzos) + sum(reporteAnualMaizDulce) + sum(reporteAnualPalmito) + sum(reporteAnualTomate)
+    gananciasTotales[año,iteracion] <- gananciaAnualTotal[año]
     #considerar mantenimiento de los vehículos, pago de aguinaldos, aumento de pedidos...
     ganancias <- append(ganancias, gananciaAnualTotal[año])
+    promedio_de_latas[iteracion]
   }
+  promedio_de_latas[iteracion] <- mean(latasTotalesPedidas[,iteracion])
 }
 
+matplot(latasTotalesPedidas, 
+        type = "l", lty = 1,
+        main = "Latas pedidas anualmente (10.000 iteraciones)", 
+        ylab = "Cantidad de latas", 
+        ylim = c(min(latasTotalesPedidas), max(latasTotalesPedidas)),
+        xlab = "Año")
+
+matplot(gananciasTotales/1000000, 
+        type = "l", lty = 1,
+        main = "Ganancias anuales (10.000 iteraciones)", 
+        ylab = "Ganancia en millones",
+        xlab = "Año")        
+
+promedio_total_latas <- mean(promedio_de_latas)
 promedio_total_ganancias = mean(ganancias)
 
 cat("Promedio de ganancias con", cantidad_de_iteraciones, "iteraciones:", promedio_total_ganancias)
+cat("Promedio de pedidos con", cantidad_de_iteraciones, "iteraciones:", promedio_total_latas)
 
 "
 Eventos: tienen un peso en la producción y demanda de ciertos productos a lo largo
